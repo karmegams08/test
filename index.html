@@ -87,55 +87,74 @@
       </p>
 
       <form id="feedbackForm">
-        <label for="reaction">Your reaction</label>
-        <select id="reaction" name="reaction" required>
-          <option value="">Choose your mood</option>
-          <option value="turtle">🐢 Turtle mode</option>
-          <option value="buffering">⏳ Buffering champion</option>
-          <option value="comedy">😂 Comedy network</option>
-          <option value="frustrated">😤 Recharge regret</option>
-          <option value="other">🤔 Other</option>
-        </select>
+        <fieldset class="reaction-options">
+          <legend>Your reaction</legend>
+          <label class="reaction-option">
+            <input type="radio" name="reaction" value="turtle" required>
+            <span>🐢 Turtle mode</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="reaction" value="buffering">
+            <span>⏳ Buffering champion</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="reaction" value="comedy">
+            <span>😂 Comedy network</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="reaction" value="frustrated">
+            <span>😤 Recharge regret</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="reaction" value="other">
+            <span>🤔 Other</span>
+          </label>
+        </fieldset>
 
-        <label for="speed">Speed measured (Mbps, optional)</label>
-        <input
-          id="speed"
-          name="speed"
-          type="number"
-          min="0"
-          max="100000"
-          step="any"
-          placeholder="e.g. 0.1"
-        >
+        <fieldset class="reaction-options">
+          <legend>Internet speed</legend>
+          <label class="reaction-option">
+            <input type="radio" name="speed_range" value="below_0_5" required>
+            <span>Below 0.5 Mbps</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="speed_range" value="0_5_to_1">
+            <span>0.5 to 1 Mbps</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="speed_range" value="2_mbps">
+            <span>2 Mbps</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="speed_range" value="no_network">
+            <span>No network</span>
+          </label>
+        </fieldset>
 
-        <label for="signal">Signal bars (optional)</label>
-        <select id="signal" name="signal">
-          <option value="">Not specified</option>
-          <option value="1">1 bar</option>
-          <option value="2">2 bars</option>
-          <option value="3">3 bars</option>
-          <option value="4">4 bars</option>
-          <option value="5">5 bars</option>
-        </select>
+        <fieldset class="reaction-options">
+          <legend>Network type (optional)</legend>
+          <label class="reaction-option">
+            <input type="radio" name="network_type" value="5g">
+            <span>5G</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="network_type" value="5g_plus">
+            <span>5G+</span>
+          </label>
+          <label class="reaction-option">
+            <input type="radio" name="network_type" value="5g_plus_plus">
+            <span>5G++</span>
+          </label>
+        </fieldset>
 
         <label for="message">Your experience</label>
         <textarea
           id="message"
           name="message"
           rows="4"
-          minlength="5"
           maxlength="1000"
           placeholder="Five bars, but even a text message is buffering..."
-          required
         ></textarea>
-
-        <label class="consent">
-          <input id="consent" type="checkbox" required>
-          <span>
-            I confirm this reflects my experience and agree to
-            submit it for display as anonymous feedback.
-          </span>
-        </label>
 
         <button id="submitButton" class="primary-button" type="submit">
           Submit feedback 🚀
@@ -149,20 +168,31 @@
       </button>
     </section>
 
-    <section class="section closing">
-      <h2>Memes are funny. Reliable internet is better. 📡</h2>
-      <p>
-        Share honest experiences, compare actual speeds, and encourage
-        better service. Every report should represent a real experience.
-      </p>
+    <section class="section sentiment-section" aria-labelledby="sentiment-title">
+      <div class="sentiment-heading">
+        <div>
+          <p class="sentiment-kicker">COMMUNITY PULSE</p>
+          <h2 id="sentiment-title">How's the connection feeling?</h2>
+        </div>
+        <p id="sentimentSummary" class="sentiment-summary" aria-live="polite">
+          Feedback totals will appear here.
+        </p>
+      </div>
 
-      <a
-        href="https://www.jio.com/help/contact-us"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Official Jio support ↗
-      </a>
+      <div class="sentiment-list" aria-label="Feedback sentiment breakdown">
+        <div class="sentiment-row" data-sentiment="positive">
+          <div class="sentiment-label"><span>Positive</span><strong>0%</strong></div>
+          <progress max="100" value="0" aria-label="Positive feedback"></progress>
+        </div>
+        <div class="sentiment-row" data-sentiment="neutral">
+          <div class="sentiment-label"><span>Neutral</span><strong>0%</strong></div>
+          <progress max="100" value="0" aria-label="Neutral feedback"></progress>
+        </div>
+        <div class="sentiment-row" data-sentiment="negative">
+          <div class="sentiment-label"><span>Negative</span><strong>0%</strong></div>
+          <progress max="100" value="0" aria-label="Negative feedback"></progress>
+        </div>
+      </div>
     </section>
   </main>
 
