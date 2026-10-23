@@ -1,14 +1,3 @@
-const SUPABASE_URL = "";
-const SUPABASE_PUBLISHABLE_KEY = "";
-
-const hasDatabaseConfig =
-  SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.length > 0;
-
-const db =
-  hasDatabaseConfig && window.supabase
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-    : null;
-
 const reactionButtons = document.querySelectorAll(".reaction");
 const reactionInputs = document.querySelectorAll('input[name="reaction"]');
 const reactionStatus = document.getElementById("reactionStatus");
@@ -26,44 +15,24 @@ const reactionNames = {
   other: "🤔 Other",
 };
 
-const sentimentReactions = {
-  positive: ["comedy"],
-  neutral: ["other"],
-  negative: ["turtle", "buffering", "frustrated"],
-};
-
 async function loadSentiment() {
-  if (!db) {
-    sentimentSummary.textContent =
-      "Connect the feedback database to see results.";
-    return;
-  }
-
   try {
-    const entries = await Promise.all(
-      Object.entries(sentimentReactions).map(async ([sentiment, reactions]) => {
-        const { count, error } = await db
-          .from("community_feedback")
-          .select("reaction", { count: "exact", head: true })
-          .in("reaction", reactions);
+    const response = await fetch("/api/sentiment", { cache: "no-store" });
+    const summary = await response.json();
+    if (!response.ok)
+      throw new Error(summary.error || "Unable to load feedback.");
 
-        if (error) throw error;
-        return [sentiment, count || 0];
-      }),
-    );
-
-    const counts = Object.fromEntries(entries);
-    const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-
-    Object.entries(counts).forEach(([sentiment, count]) => {
-      const percentage = total ? Math.round((count / total) * 100) : 0;
+    Object.entries(summary.counts).forEach(([sentiment, count]) => {
+      const percentage = summary.total
+        ? Math.round((count / summary.total) * 100)
+        : 0;
       const row = document.querySelector(`[data-sentiment="${sentiment}"]`);
       row.querySelector("progress").value = percentage;
       row.querySelector("strong").textContent = `${percentage}%`;
     });
 
-    sentimentSummary.textContent = total
-      ? `${total} ${total === 1 ? "response" : "responses"}`
+    sentimentSummary.textContent = summary.total
+      ? `${summary.total} ${summary.total === 1 ? "response" : "responses"}`
       : "No feedback submitted yet.";
   } catch (error) {
     console.error("Sentiment summary failed:", error);
@@ -113,13 +82,6 @@ form.addEventListener("submit", async (event) => {
 
   if (!form.reportValidity()) return;
 
-  if (!db) {
-    formStatus.textContent =
-      "Demo mode: configure Supabase to save feedback. " +
-      "Nothing has been stored.";
-    return;
-  }
-
   const data = new FormData(form);
   const reaction = String(data.get("reaction") || "");
   const speedRange = String(data.get("speed_range") || "");
@@ -147,9 +109,13 @@ form.addEventListener("submit", async (event) => {
   formStatus.textContent = "Submitting your feedback...";
 
   try {
-    const { error } = await db.from("community_feedback").insert([submission]);
-
-    if (error) throw error;
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(submission),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Submission failed.");
 
     formStatus.textContent =
       "Thanks! Your feedback was submitted successfully.";
@@ -162,7 +128,8 @@ form.addEventListener("submit", async (event) => {
     await loadSentiment();
   } catch (error) {
     console.error("Feedback submission failed:", error);
-    formStatus.textContent = "Submission failed. Please try again later.";
+    formStatus.textContent =
+      error.message || "Submission failed. Please try again later.";
   } finally {
     submitButton.disabled = false;
   }

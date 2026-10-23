@@ -1,0 +1,6 @@
+worker.js
+wrangler.jsonc
+supabase-migration.sql
+migrations/
+.assetsignore
+.git/
