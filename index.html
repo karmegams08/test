@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="A humorous, independent campaign for sharing mobile internet experiences.">
+  <title>Signal vs Reality | Internet Feedback</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#">📶 Signal vs Reality</a>
+    <span class="independent">INDEPENDENT FEEDBACK</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="pill">😂 THE INTERNET EXPERIENCE AWARDS</div>
+
+      <h1>
+        5 BARS.<br>
+        <span>0.1 Mbps.</span>
+      </h1>
+
+      <p class="subtitle">
+        Full signal. Empty patience.
+      </p>
+
+      <p class="intro">
+        Ever watched a loading spinner longer than a movie?
+        Share your real internet experience and give the buffering
+        a rating it deserves.
+      </p>
+
+      <a class="primary-button" href="#feedback">
+        Share your experience ↓
+      </a>
+
+      <div class="disclaimer">
+        An independent consumer feedback and satire page.
+        Not affiliated with or endorsed by Jio or Reliance.
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="reaction-title">
+      <h2 id="reaction-title">What's your network mood? 🤡</h2>
+      <p class="muted">Pick the reaction that describes your experience.</p>
+
+      <div class="reaction-grid">
+        <button class="reaction" data-reaction="turtle">
+          <span>🐢</span>
+          <strong>Turtle mode</strong>
+          <small>Every page takes forever</small>
+        </button>
+
+        <button class="reaction" data-reaction="buffering">
+          <span>⏳</span>
+          <strong>Buffering champion</strong>
+          <small>Loading is my lifestyle</small>
+        </button>
+
+        <button class="reaction" data-reaction="comedy">
+          <span>😂</span>
+          <strong>Comedy network</strong>
+          <small>Laughing to avoid crying</small>
+        </button>
+
+        <button class="reaction" data-reaction="frustrated">
+          <span>😤</span>
+          <strong>Recharge regret</strong>
+          <small>My patience needs a recharge</small>
+        </button>
+      </div>
+
+      <p id="reactionStatus" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="section feedback-section" id="feedback">
+      <h2>Let it out. Keep it factual. 📝</h2>
+      <p class="muted">
+        Tell us what happened. Don't include your phone number,
+        address, or other private information.
+      </p>
+
+      <form id="feedbackForm">
+        <label for="reaction">Your reaction</label>
+        <select id="reaction" name="reaction" required>
+          <option value="">Choose your mood</option>
+          <option value="turtle">🐢 Turtle mode</option>
+          <option value="buffering">⏳ Buffering champion</option>
+          <option value="comedy">😂 Comedy network</option>
+          <option value="frustrated">😤 Recharge regret</option>
+          <option value="other">🤔 Other</option>
+        </select>
+
+        <label for="speed">Speed measured (Mbps, optional)</label>
+        <input
+          id="speed"
+          name="speed"
+          type="number"
+          min="0"
+          max="100000"
+          step="any"
+          placeholder="e.g. 0.1"
+        >
+
+        <label for="signal">Signal bars (optional)</label>
+        <select id="signal" name="signal">
+          <option value="">Not specified</option>
+          <option value="1">1 bar</option>
+          <option value="2">2 bars</option>
+          <option value="3">3 bars</option>
+          <option value="4">4 bars</option>
+          <option value="5">5 bars</option>
+        </select>
+
+        <label for="message">Your experience</label>
+        <textarea
+          id="message"
+          name="message"
+          rows="4"
+          minlength="5"
+          maxlength="1000"
+          placeholder="Five bars, but even a text message is buffering..."
+          required
+        ></textarea>
+
+        <label class="consent">
+          <input id="consent" type="checkbox" required>
+          <span>
+            I confirm this reflects my experience and agree to
+            submit it for display as anonymous feedback.
+          </span>
+        </label>
+
+        <button id="submitButton" class="primary-button" type="submit">
+          Submit feedback 🚀
+        </button>
+
+        <p id="formStatus" class="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <button id="shareButton" class="secondary-button" type="button">
+        Share this campaign ↗
+      </button>
+    </section>
+
+    <section class="section closing">
+      <h2>Memes are funny. Reliable internet is better. 📡</h2>
+      <p>
+        Share honest experiences, compare actual speeds, and encourage
+        better service. Every report should represent a real experience.
+      </p>
+
+      <a
+        href="https://www.jio.com/help/contact-us"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Official Jio support ↗
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Independent satire and consumer feedback project.
+      Jio and Reliance are trademarks of their respective owners.
+    </p>
+    <p>Made by an internet user who has waited long enough. 🐢</p>
+  </footer>
+</body>
+</html>
