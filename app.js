@@ -6,6 +6,7 @@ const formStatus = document.getElementById("formStatus");
 const submitButton = document.getElementById("submitButton");
 const shareButton = document.getElementById("shareButton");
 const sentimentSummary = document.getElementById("sentimentSummary");
+const feedbackStorageKey = "signal-vs-reality-feedback";
 
 const reactionNames = {
   turtle: "🐢 Turtle mode",
@@ -15,33 +16,67 @@ const reactionNames = {
   other: "🤔 Other",
 };
 
-async function loadSentiment() {
+function readFeedback() {
   try {
-    const response = await fetch("/api/sentiment", { cache: "no-store" });
-    const summary = await response.json();
-    if (!response.ok)
-      throw new Error(summary.error || "Unable to load feedback.");
-
-    Object.entries(summary.counts).forEach(([sentiment, count]) => {
-      const percentage = summary.total
-        ? Math.round((count / summary.total) * 100)
-        : 0;
-      const row = document.querySelector(`[data-sentiment="${sentiment}"]`);
-      row.querySelector("progress").value = percentage;
-      row.querySelector("strong").textContent = `${percentage}%`;
-    });
-
-    sentimentSummary.textContent = summary.total
-      ? `${summary.total} ${summary.total === 1 ? "response" : "responses"}`
-      : "No feedback submitted yet.";
-  } catch (error) {
-    console.error("Sentiment summary failed:", error);
-    sentimentSummary.textContent =
-      "Feedback summary is temporarily unavailable.";
+    const savedFeedback = JSON.parse(
+      localStorage.getItem(feedbackStorageKey) || "[]",
+    );
+    return Array.isArray(savedFeedback)
+      ? savedFeedback.filter((entry) => reactionNames[entry?.reaction])
+      : [];
+  } catch {
+    return [];
   }
 }
 
+function saveFeedback(feedback) {
+  const savedFeedback = readFeedback();
+  savedFeedback.push(feedback);
+  localStorage.setItem(feedbackStorageKey, JSON.stringify(savedFeedback));
+  return savedFeedback;
+}
+
+function loadSentiment() {
+  const feedback = readFeedback();
+  const counts = {
+    positive: feedback.filter((entry) => entry.reaction === "comedy").length,
+    neutral: feedback.filter((entry) => entry.reaction === "other").length,
+    negative: feedback.filter((entry) =>
+      ["turtle", "buffering", "frustrated"].includes(entry.reaction),
+    ).length,
+  };
+  const total = feedback.length;
+  const percentageParts = Object.entries(counts).map(([sentiment, count]) => {
+    const exact = total ? (count / total) * 100 : 0;
+    return { sentiment, value: Math.floor(exact), remainder: exact % 1 };
+  });
+  const pointsRemaining = total
+    ? 100 - percentageParts.reduce((sum, part) => sum + part.value, 0)
+    : 0;
+  [...percentageParts]
+    .sort((first, second) => second.remainder - first.remainder)
+    .slice(0, pointsRemaining)
+    .forEach((part) => part.value++);
+  const percentages = Object.fromEntries(
+    percentageParts.map(({ sentiment, value }) => [sentiment, value]),
+  );
+
+  Object.entries(percentages).forEach(([sentiment, percentage]) => {
+    const row = document.querySelector(`[data-sentiment="${sentiment}"]`);
+    row.querySelector("progress").value = percentage;
+    row.querySelector("strong").textContent = `${percentage}%`;
+  });
+
+  sentimentSummary.textContent = total
+    ? `${total} ${total === 1 ? "response" : "responses"} on this device`
+    : "No feedback submitted on this device yet.";
+}
+
 loadSentiment();
+
+window.addEventListener("storage", (event) => {
+  if (event.key === feedbackStorageKey) loadSentiment();
+});
 
 reactionButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -89,6 +124,7 @@ form.addEventListener("submit", async (event) => {
   const message = String(data.get("message") || "").trim();
 
   if (
+    !Object.hasOwn(reactionNames, reaction) ||
     !["below_0_5", "0_5_to_1", "2_mbps", "no_network"].includes(speedRange) ||
     (networkType !== null &&
       !["5g", "5g_plus", "5g_plus_plus"].includes(networkType)) ||
@@ -105,33 +141,20 @@ form.addEventListener("submit", async (event) => {
     message,
   };
 
-  submitButton.disabled = true;
-  formStatus.textContent = "Submitting your feedback...";
-
   try {
-    const response = await fetch("/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(submission),
-    });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || "Submission failed.");
-
-    formStatus.textContent =
-      "Thanks! Your feedback was submitted successfully.";
+    saveFeedback(submission);
+    formStatus.textContent = "Feedback saved on this device. Thank you!";
     form.reset();
 
     reactionButtons.forEach((button) => {
       button.classList.remove("selected");
       button.setAttribute("aria-pressed", "false");
     });
-    await loadSentiment();
+    loadSentiment();
   } catch (error) {
-    console.error("Feedback submission failed:", error);
+    console.error("Feedback could not be saved:", error);
     formStatus.textContent =
-      error.message || "Submission failed. Please try again later.";
-  } finally {
-    submitButton.disabled = false;
+      "Unable to save feedback in this browser. Check available storage and try again.";
   }
 });
 
